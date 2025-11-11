@@ -5,7 +5,7 @@ import RecipeDetails from './components/RecipeDetails';
 
 function App() {
   return (
-    <Router>
+    // <Router>
       <div>
         <h1 style={{ textAlign: 'center' }}>Recipe Sharing App</h1>
         <Routes>
@@ -13,7 +13,7 @@ function App() {
           <Route path="/recipe/:id" element={<RecipeDetails />} />
         </Routes>
       </div>
-    </Router>
+    // </Router>
   );
 }
 
