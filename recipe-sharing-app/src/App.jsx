@@ -2,10 +2,11 @@ import { Routes, Route, Router } from 'react-router-dom';
 import AddRecipeForm from './components/AddRecipeForm';
 import RecipeList from './components/RecipeList';
 import RecipeDetails from './components/RecipeDetails';
+import SearchBar from './components/SearchBar';
 
 function App() {
   return (
-    // <Router>
+    <Router>
       <div>
         <h1 style={{ textAlign: 'center' }}>Recipe Sharing App</h1>
         <Routes>
@@ -13,7 +14,7 @@ function App() {
           <Route path="/recipe/:id" element={<RecipeDetails />} />
         </Routes>
       </div>
-    // </Router>
+    </Router>
   );
 }
 

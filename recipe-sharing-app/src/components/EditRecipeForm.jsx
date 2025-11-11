@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useRecipeStore } from '../recipeStore';
+import { useRecipeStore } from './recipeStore';
 
 function EditRecipeForm({ recipe }) {
   const updateRecipe = useRecipeStore((state) => state.updateRecipe);
@@ -7,7 +7,7 @@ function EditRecipeForm({ recipe }) {
   const [description, setDescription] = useState(recipe.description);
 
   const handleSubmit = (event) => {
-    event.preventDefault(); // ✅ Required by checker
+    event.preventDefault(); 
     updateRecipe(recipe.id, { title, description });
     alert('Recipe updated!');
   };
