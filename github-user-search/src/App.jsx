@@ -64,13 +64,19 @@
 // export default App;
 
 
-import SearchUser from './components/SearchUser';
 
-export default function App() {
+
+import Search from './components/Search';
+
+function App() {
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>GitHub User Search</h1>
-      <SearchUser />
+    <div className="min-h-screen bg-gray-50 flex items-start justify-center p-6">
+      <div className="w-full max-w-6xl">
+        <Search />
+      </div>
     </div>
   );
 }
+
+
+export default App

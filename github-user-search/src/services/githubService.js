@@ -9,7 +9,21 @@ const client = axios.create({
   headers: token ? { Authorization: `Bearer ${token}` } : {},
 });
 
+// Fetch single user by username
 export async function fetchUserData(username) {
   const { data } = await client.get(`/users/${username}`);
+  return data;
+}
+
+// Advanced search for multiple users
+export async function searchAdvancedUsers({ username, location, minRepos }) {
+  let query = '';
+  if (username) query += `${username} `;
+  if (location) query += `location:${location} `;
+  if (minRepos) query += `repos:>=${minRepos}`;
+
+  const { data } = await client.get('/search/users', {
+    params: { q: query.trim(), per_page: 10 },
+  });
   return data;
 }
