@@ -6,10 +6,14 @@ export default function Search() {
   const [username, setUsername] = useState('');
   const [location, setLocation] = useState('');
   const [minRepos, setMinRepos] = useState('');
-  const [user, setUser] = useState(null);       // single-user result
-  const [results, setResults] = useState([]);   // multi-user results
+  const [user, setUser] = useState(null);       // Single-user result
+  const [results, setResults] = useState([]);   // Multi-user results
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 6; // Adjust for grid layout
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -17,19 +21,18 @@ export default function Search() {
     setError('');
     setUser(null);
     setResults([]);
+    setCurrentPage(1); // Reset to first page on new search
 
     try {
-      // If either advanced criteria is present, use Search API (multi-user)
       if (location || minRepos) {
         const data = await searchAdvancedUsers({ username, location, minRepos });
         const items = data.items || [];
 
         if (items.length === 0) {
-          setError('Looks like we cant find the user');
+          setError('Looks like we can’t find the user');
           return;
         }
 
-        // Fetch extra details (location, repo count) for each user
         const detailedResults = await Promise.all(
           items.map(async (u) => {
             const details = await fetchUserData(u.login);
@@ -43,7 +46,6 @@ export default function Search() {
 
         setResults(detailedResults);
       } else if (username) {
-        // Only username provided → single-user fetch
         const data = await fetchUserData(username.trim());
         setUser(data);
       } else {
@@ -51,17 +53,29 @@ export default function Search() {
       }
     } catch (err) {
       console.error(err);
-      setError('Looks like we cant find the user');
+      setError('Looks like we can’t find the user');
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="bg-white rounded shadow p-6">
-      <h1 className="text-2xl font-bold mb-4 text-gray-900">GitHub User Search</h1>
+  // Pagination logic
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentResults = results.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(results.length / usersPerPage);
 
-      <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+  return (
+    <div className="bg-white rounded shadow p-6 w-full">
+      <h1 className="text-2xl font-bold mb-4 text-gray-900 text-center">
+        GitHub User Search
+      </h1>
+
+      {/* Search Form */}
+      <form
+        onSubmit={handleSearch}
+        className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"
+      >
         <input
           type="text"
           placeholder="Username"
@@ -96,10 +110,11 @@ export default function Search() {
         </button>
       </form>
 
-      {loading && <p className="text-gray-600">Loading...</p>}
-      {error && <p className="text-red-600">{error}</p>}
+      {/* Loading & Error */}
+      {loading && <p className="text-gray-600 text-center">Loading...</p>}
+      {error && <p className="text-red-600 text-center">{error}</p>}
 
-      {/* Single user result */}
+      {/* Single User Result */}
       {user && (
         <div className="flex items-center gap-4 border p-4 rounded mb-6 bg-gray-50">
           <img
@@ -108,9 +123,7 @@ export default function Search() {
             className="w-16 h-16 rounded-full"
           />
           <div className="min-w-0">
-            <p className="font-semibold truncate">
-              {user.name || user.login}
-            </p>
+            <p className="font-semibold truncate">{user.name || user.login}</p>
             {user.location && (
               <p className="text-gray-600 truncate">Location: {user.location}</p>
             )}
@@ -127,34 +140,82 @@ export default function Search() {
         </div>
       )}
 
-      {/* Multiple users result */}
+      {/* Multiple Users Result */}
       {results.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {results.map((u) => (
-            <div key={u.id} className="flex items-center gap-4 border p-4 rounded bg-gray-50">
-              <img
-                src={u.avatar_url}
-                alt={`${u.login} avatar`}
-                className="w-16 h-16 rounded-full"
-              />
-              <div className="min-w-0">
-                <p className="font-semibold truncate">{u.login}</p>
-                {u.location && (
-                  <p className="text-gray-600 truncate">Location: {u.location}</p>
-                )}
-                <p className="text-gray-600">Repos: {u.public_repos}</p>
-                <a
-                  href={u.html_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
-                  View Profile
-                </a>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
+            {currentResults.map((u) => (
+              <div
+                key={u.id}
+                className="flex items-center gap-4 border p-4 rounded bg-gray-50"
+              >
+                <img
+                  src={u.avatar_url}
+                  alt={`${u.login} avatar`}
+                  className="w-16 h-16 rounded-full"
+                />
+                <div className="min-w-0">
+                  <p className="font-semibold truncate">{u.login}</p>
+                  {u.location && (
+                    <p className="text-gray-600 truncate">Location: {u.location}</p>
+                  )}
+                  <p className="text-gray-600">Repos: {u.public_repos}</p>
+                  <a
+                    href={u.html_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    View Profile
+                  </a>
+                </div>
               </div>
+            ))}
+          </div>
+
+          {/* Pagination Controls */}
+          {results.length > usersPerPage && (
+            <div className="flex flex-wrap justify-center items-center gap-2 mt-6">
+              {/* Previous Button */}
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+              >
+                Previous
+              </button>
+
+              {/* Numbered Page Buttons */}
+              {[...Array(totalPages)].map((_, index) => {
+                const pageNum = index + 1;
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`px-3 py-1 rounded ${
+                      currentPage === pageNum
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 hover:bg-gray-300'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              {/* Next Button */}
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+              >
+                Next
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );
