@@ -1,6 +1,9 @@
 
+
 import React from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Routes, Route } from "react-router-dom";
+import ProfileDetails from "./ProfileDetails";
+import ProfileSettings from "./ProfileSettings";
 
 export default function Profile() {
   return (
@@ -13,8 +16,14 @@ export default function Profile() {
         <Link to="settings">Settings</Link>
       </div>
 
-      {/* Nested child routes render here */}
-      <Outlet />
+      /* Local nested routing inside Profile component */
+      <Routes>
+        /* index route — when at /profile */
+        <Route path="/" element={<ProfileDetails />} />
+        {/* explicit sub-routes */}
+        <Route path="details" element={<ProfileDetails />} />
+        <Route path="settings" element={<ProfileSettings />} />
+      </Routes>
     </div>
   );
 }
