@@ -1,15 +1,22 @@
 
 {
   "jsc": {
-    "target": "es2020",
+    "parser": {
+      "syntax": "ecmascript",
+      "jsx": true
+    },
     "transform": {
       "react": {
+        // Use React 17+ "automatic" runtime so you don't need `import React`
         "runtime": "automatic",
-        "useBuiltins": true
+        "development": true,
+        "refresh": false
       }
-    }
+       },
+    "target": "es2020"
   },
   "module": {
-    "type": "es6"
-  }
+    "type": "commonjs"
+  },
+  "sourceMaps": true
 }
