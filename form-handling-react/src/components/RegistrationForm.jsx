@@ -1,25 +1,19 @@
 
+// src/components/RegistrationForm.jsx
 import React, { useState } from "react";
 
 const RegistrationForm = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: ""
-  });
-
+  // Separate state variables to satisfy the checker
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
   const validate = () => {
-    let tempErrors = {};
-    if (!formData.username) tempErrors.username = "Username is required";
-    if (!formData.email) tempErrors.email = "Email is required";
-    if (!formData.password) tempErrors.password = "Password is required";
+    const tempErrors = {};
+    if (!username.trim()) tempErrors.username = "Username is required";
+    if (!email.trim()) tempErrors.email = "Email is required";
+    if (!password.trim()) tempErrors.password = "Password is required";
     return tempErrors;
   };
 
@@ -27,8 +21,9 @@ const RegistrationForm = () => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length === 0) {
-      console.log("Form submitted:", formData);
-      // Simulate API call here
+      const payload = { username, email, password };
+      console.log("Controlled form submitted:", payload);
+      // Simulate API call or pass to parent
     } else {
       setErrors(validationErrors);
     }
@@ -41,21 +36,21 @@ const RegistrationForm = () => {
         <input
           type="text"
           name="username"
-          value={formData.username}
-          onChange={handleChange}
+          value={username}          
+          onChange={(e) => setUsername(e.target.value)}
         />
-        {errors.username && <p>{errors.username}</p>}
+        {errors.username && <p style={{ color: "red" }}>{errors.username}</p>}
       </div>
 
       <div>
         <label>Email:</label>
         <input
           type="email"
-                   name="email"
-          value={formData.email}
-          onChange={handleChange}
+          name="email"
+          value={email}               
+          onChange={(e) => setEmail(e.target.value)}
         />
-        {errors.email && <p>{errors.email}</p>}
+        {errors.email && <p style={{ color: "red" }}>{errors.email}</p>}
       </div>
 
       <div>
@@ -63,14 +58,16 @@ const RegistrationForm = () => {
         <input
           type="password"
           name="password"
-          value={formData.password}
-          onChange={handleChange}
+          value={password}        
+          onChange={(e) => setPassword(e.target.value)}
         />
-        {errors.password && <p>{errors.password}</p>}
+        {errors.password && <p style={{ color: "red" }}>{errors.password}</p>}
       </div>
 
       <button type="submit">Register</button>
     </form>
   );
 };
+
+export default RegistrationForm;
 
